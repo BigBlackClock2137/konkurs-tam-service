@@ -1,0 +1,63 @@
+import java.util.*;
+
+class Clan {
+    int id; // numer klanu
+    int size; // liczba graczy w klanie
+    int points; // suma punktów graczy w klanie
+    
+    public Clan(int id, int size, int points) {
+        this.id = id;
+        this.size = size;
+        this.points = points;
+    }
+}
+
+public class Game {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int m = scanner.nextInt(); // liczba miejsc w grupie
+        int n = scanner.nextInt(); // liczba klanów
+        List<Clan> clans = new ArrayList<>(); // lista klanów
+        
+        // wczytywanie danych o klanach
+        for (int i = 0; i < n; i++) {
+            int size = scanner.nextInt();
+            int points = scanner.nextInt();
+            clans.add(new Clan(i, size, points));
+        }
+        
+        // sortowanie klanów wg sumy punktów i rozmiaru
+        clans.sort(Comparator.comparing((Clan clan) -> -clan.points)
+                          .thenComparing(clan -> clan.size)
+                          .thenComparing(clan -> clan.id));
+        
+        int i = 0;
+        while (i < clans.size()) {
+            // wybieramy kolejną grupę graczy
+            int j = i + m;
+            if (j > clans.size()) {
+                j = clans.size();
+            }
+            List<Clan> group = clans.subList(i, j);
+            // sortujemy grupę wg sumy punktów i rozmiaru klanu
+            group.sort(Comparator.comparing((Clan clan) -> -clan.points)
+                             .thenComparing(clan -> clan.size)
+                             .thenComparing(clan -> clan.id));
+            // dzielimy grupę na mniejsze grupy, które wejdą na planszę po kolei
+            int k = 0;
+            while (k < group.size()) {
+                int l = k + group.get(k).size;
+                if (l > group.size()) {
+                    l = group.size();
+                }
+                List<Clan> subgroup = group.subList(k, l);
+                for (Clan clan : subgroup) {
+                    System.out.print((clan.id + 1) + " ");
+                }
+                System.out.println();
+                k = l;
+            }
+            i = j;
+        }
+    }
+}
