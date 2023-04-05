@@ -1,0 +1,117 @@
+import java.util.*;
+
+public class BankTransactions {
+    public static void main(String[] args) {
+        // przykładowe dane wejściowe
+        List<Transaction> transactions = new ArrayList<>();
+        transactions.add(new Transaction(1, "John", TransactionType.INCOMING, 1000));
+        transactions.add(new Transaction(2, "Jane", TransactionType.OUTGOING, 500));
+        transactions.add(new Transaction(3, "John", TransactionType.OUTGOING, 250));
+        transactions.add(new Transaction(4, "Jane", TransactionType.INCOMING, 750));
+
+        // mapa do przechowywania salda dla każdego rachunku
+        Map<Integer, Double> accountBalance = new HashMap<>();
+
+        // przetwarzanie transakcji i aktualizacja sald rachunków
+        for (Transaction t : transactions) {
+            if (!accountBalance.containsKey(t.getAccountId())) {
+                accountBalance.put(t.getAccountId(), 0.0);
+            }
+            if (t.getType() == TransactionType.INCOMING) {
+                accountBalance.put(t.getAccountId(), accountBalance.get(t.getAccountId()) + t.getAmount());
+            } else {
+                accountBalance.put(t.getAccountId(), accountBalance.get(t.getAccountId()) - t.getAmount());
+            }
+        }
+
+        // lista do przechowywania wyników (posortowana rosnąco po numerze rachunku)
+        List<AccountSummary> accountSummaries = new ArrayList<>();
+        for (Map.Entry<Integer, Double> entry : accountBalance.entrySet()) {
+            accountSummaries.add(new AccountSummary(entry.getKey(), entry.getValue()));
+        }
+        Collections.sort(accountSummaries);
+
+        // wyświetlanie wyników
+        for (AccountSummary summary : accountSummaries) {
+            System.out.println("Account #" + summary.getAccountId() + ": " +
+                    summary.getIncomingCount() + " incoming transactions, " +
+                    summary.getOutgoingCount() + " outgoing transactions, balance: " +
+                    summary.getBalance());
+        }
+    }
+}
+
+class Transaction {
+    private int accountId;
+    private String name;
+    private TransactionType type;
+    private double amount;
+
+    public Transaction(int accountId, String name, TransactionType type, double amount) {
+        this.accountId = accountId;
+        this.name = name;
+        this.type = type;
+        this.amount = amount;
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TransactionType getType() {
+        return type;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+}
+
+enum TransactionType {
+    INCOMING, OUTGOING
+}
+
+class AccountSummary implements Comparable<AccountSummary> {
+    private int accountId;
+    private int incomingCount;
+    private int outgoingCount;
+    private double balance;
+
+    public AccountSummary(int accountId, double balance) {
+        this.accountId = accountId;
+        this.balance = balance;
+    }
+
+    public void addIncoming() {
+        incomingCount++;
+    }
+
+    public void addOutgoing() {
+        outgoingCount++;
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public int getIncomingCount() {
+        return incomingCount;
+    }
+
+    public int getOutgoingCount() {
+        return outgoingCount;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    @Override
+    public int compareTo(AccountSummary o) {
+        return this.accountId - o.getAccountId();
+    }
+}
