@@ -1,0 +1,61 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+
+public class BankomatService {
+
+    // Przechowuje kolejki zleceń dla każdego regionu
+    private Map<Integer, PriorityQueue<Zlecenie>> kolejki = new HashMap<>();
+
+    // Dodaje zlecenie do kolejki dla odpowiedniego regionu
+    public void dodajZlecenie(int region, Zlecenie zlecenie) {
+        PriorityQueue<Zlecenie> kolejka = kolejki.getOrDefault(region, new PriorityQueue<>());
+        kolejka.add(zlecenie);
+        kolejki.put(region, kolejka);
+    }
+
+    // Zwraca listę zleceń dla grupy konwojowej w kolejności do wykonania
+    public List<Zlecenie> pobierzZlecenia() {
+        List<Zlecenie> zlecenia = new ArrayList<>();
+        boolean niskiStanGotowki = false;
+
+        // Sprawdza czy jest zgłoszenie o niskim stanie gotówki i dodaje je do listy zleceń
+        for (int region : kolejki.keySet()) {
+            for (Zlecenie zlecenie : kolejki.get(region)) {
+                if (zlecenie.typ == TypZlecenia.NISKI_STAN_GOTOWKI) {
+                    zlecenia.add(zlecenie);
+                    niskiStanGotowki = true;
+                    break;
+                }
+            }
+            if (niskiStanGotowki) {
+                break;
+            }
+        }
+
+        // Dodaje priorytetowe zasilenia bankomatów do listy zleceń
+        for (int region : kolejki.keySet()) {
+            for (Zlecenie zlecenie : kolejki.get(region)) {
+                if (zlecenie.typ == TypZlecenia.PRIORYTETOWE_ZASILENIE_BANKOMATU) {
+                    zlecenia.add(zlecenie);
+                }
+            }
+        }
+
+        // Sprawdza czy jest zgłoszenie o awarii bankomatu bez komunikacji i dodaje je do listy zleceń
+        for (int region : kolejki.keySet()) {
+            for (Zlecenie zlecenie : kolejki.get(region)) {
+                if (zlecenie.typ == TypZlecenia.AWARIA_BEZ_KOMUNIKACJI) {
+                    zlecenia.add(zlecenie);
+                    break;
+                }
+            }
+        }
+
+        // Dodaje pozostałe zlecenia do listy zleceń w kolejności według numerów regionów
+        for (int region : kolejki.keySet()) {
+            for (Zlecenie zlecenie : kolejki.get(region)) {
+                if (zlecenie.typ != TypZlecenia.NISKI_STAN_GOTOWKI
+                        && zlecenie.typ != TypZlecenia.PRIORYTETOWE_Z
