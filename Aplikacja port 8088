@@ -1,0 +1,127 @@
+import io.javalin.Javalin;
+import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+public class App {
+
+    public static void main(String[] args) {
+
+        Javalin app = Javalin.create().start(8080);
+
+        app.get("/atmservice", ctx -> {
+            String requestBody = ctx.body();
+            AtmServiceRequest atmServiceRequest = Json.mapper().readValue(requestBody, AtmServiceRequest.class);
+            AtmServiceResponse atmServiceResponse = new AtmServiceResponse(atmServiceRequest.getAmount());
+            ctx.result(Json.mapper().writeValueAsString(atmServiceResponse));
+        });
+
+        app.get("/onlinegame", ctx -> {
+            String requestBody = ctx.body();
+            OnlineGameRequest onlineGameRequest = Json.mapper().readValue(requestBody, OnlineGameRequest.class);
+            OnlineGameResponse onlineGameResponse = new OnlineGameResponse(onlineGameRequest.getGameId(), "WIN");
+            ctx.result(Json.mapper().writeValueAsString(onlineGameResponse));
+        });
+
+        app.get("/transactions", ctx -> {
+            String requestBody = ctx.body();
+            TransactionsRequest transactionsRequest = Json.mapper().readValue(requestBody, TransactionsRequest.class);
+            TransactionsResponse transactionsResponse = new TransactionsResponse(transactionsRequest.getTransactions());
+            ctx.result(Json.mapper().writeValueAsString(transactionsResponse));
+        });
+    }
+}
+
+class AtmServiceRequest {
+    private int amount;
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+}
+
+class AtmServiceResponse {
+    private int amount;
+
+    public AtmServiceResponse(int amount) {
+        this.amount = amount;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+}
+
+class OnlineGameRequest {
+    private String gameId;
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
+    }
+}
+
+class OnlineGameResponse {
+    private String gameId;
+    private String result;
+
+    public OnlineGameResponse(String gameId, String result) {
+        this.gameId = gameId;
+        this.result = result;
+    }
+
+    public String getGameId() {
+        return gameId;
+    }
+
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+}
+
+class TransactionsRequest {
+    private List<String> transactions;
+
+    public List<String> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<String> transactions) {
+        this.transactions = transactions;
+    }
+}
+
+class TransactionsResponse {
+    private List<String> transactions;
+
+    public TransactionsResponse(List<String> transactions) {
+        this.transactions = transactions;
+    }
+
+    public List<String> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<String> transactions) {
+        this.transactions = transactions;
+    }
+}
